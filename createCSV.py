@@ -8,6 +8,8 @@ from zemberek import (
 from zemberek.tokenization.token import Token
 
 tokenizeArray = []
+tokenizeArray.append('')
+tokenizeArray.append('newline')
 indexedDataset = []
 tokens = []
 sequenceArray = []
@@ -40,7 +42,7 @@ def addLineToDataset(tokenarray):
     indexed = []
     for i in range(len(tokenarray)):
         indexed.append(addToTokenizeArray(tokenarray[i].content))
-    indexed.append(-1)
+    indexed.append(1)
     indexedDataset.append(indexed)
 
 
@@ -62,7 +64,7 @@ data = pd.read_csv("poetry_TR.csv")
 df = pd.DataFrame(data)
 df.columns = ['poetry']
 tokenizer = TurkishTokenizer.builder().accept_all().ignore_types([Token.Type.NewLine,
-                                                                  Token.Type.SpaceTab, Token.Type.Punctuation]).build()
+                                                                  Token.Type.SpaceTab]).build()
 
 for index, row in df.iterrows():
     tokens = tokenizer.tokenize(row['poetry'])
@@ -73,9 +75,11 @@ createSequenceArray()
 applyPadding()
 #for x in sequenceArray:
 #    print(x)
+print(sequenceArray)
+print(tokenizeArray)
 sequenceArray = pd.DataFrame(data=sequenceArray)
 sequenceArray.to_csv("sequence_data.csv")
-print("tokenize array length: ", len(tokenizeArray)+1)
+print("tokenize array length: ", len(tokenizeArray))
 
 tokenizeData = pd.DataFrame(data=tokenizeArray)
 tokenizeData.to_csv("tokenizeList.csv")

@@ -12,7 +12,7 @@ model = tf.keras.models.load_model('poetryModel2')
 
 seed_text = "bir şarab seli hâlinde dönmenin yezitliği"
 next_words = 20
-max_length = 11
+max_length = 14
 tokenizeArray = pd.read_csv("tokenizeList.csv")
 tokenizeArray = tokenizeArray['0'].to_numpy().tolist()
 
