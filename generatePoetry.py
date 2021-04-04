@@ -8,9 +8,13 @@ from zemberek import (
 )
 from zemberek.tokenization.token import Token
 
-model = tf.keras.models.load_model('poetryModel2')
+model1 = tf.keras.models.load_model('poetryModel20')
+model2 = tf.keras.models.load_model('poetryModel40')
+model3 = tf.keras.models.load_model('poetryModel60')
+model4 = tf.keras.models.load_model('poetryModel80')
 
 seed_text = "bir şarab seli hâlinde dönmenin yezitliği"
+seed_text_original = seed_text
 next_words = 20
 max_length = 14
 tokenizeArray = pd.read_csv("tokenizeList.csv")
@@ -30,7 +34,7 @@ def addToTokenizeArray(word):
 
 def applyPadding(tokenarray):
     newArray = []
-    zeroAmount = max_length + 1 - len(tokenarray)
+    zeroAmount = max_length - len(tokenarray)
     zeroArray = []
     for i in range(zeroAmount):
         zeroArray.append(0)
@@ -42,7 +46,6 @@ def addLineToDataset(tokenarray):
     indexed = []
     for i in range(len(tokenarray)):
         indexed.append(addToTokenizeArray(tokenarray[i].content))
-    indexed.append(-1)
 
     dataset.append(applyPadding(indexed))
     return applyPadding(indexed)
@@ -52,7 +55,7 @@ def addLineToDatasetForPrediction(tokenarray):
     indexed = []
     for i in range(len(tokenarray)):
         indexed.append(addToTokenizeArray(tokenarray[i].content))
-    indexed.append(-1)
+    indexed.append(1)
 
     dataset.append(applyPadding(indexed))
     return applyPadding(indexed)
@@ -63,22 +66,25 @@ def deleteFirstWord(line):
 
 
 tokenizer = TurkishTokenizer.builder().accept_all().ignore_types([Token.Type.NewLine,
-                                                                  Token.Type.SpaceTab, Token.Type.Punctuation]).build()
+                                                                  Token.Type.SpaceTab]).build()
+print("----------------------------------")
+print("Model1")
 poetry = seed_text
-for _ in range(next_words):
+for ss in range(next_words):
     tokens = tokenizer.tokenize(seed_text)
-
     res = addLineToDataset(tokens)
-    res.pop()
-    res = np.array(res)
-    predicted = model.predict_classes([[res]], verbose=0)
-    if len(seed_text) >= max_length:
+    print("res: ",res, " len: ",len(res))
+    predicted = model1.predict_classes([res], verbose=0)
+
+    word_list = seed_text.split()
+    number_of_words = len(word_list)
+    if number_of_words >= max_length:
         seed_text = deleteFirstWord(seed_text)
-    if predicted[0] == 15292 or predicted[0] == 15293:
-        seed_text = seed_text + " " + tokenizeArray[random.randint(0, 15291)]
-        print("sa")
-    else:
-        poetry += " " + tokenizeArray[predicted[0]]
-        seed_text = seed_text + " " + tokenizeArray[predicted[0]]
+
+    poetry += " " + tokenizeArray[predicted[0]]
+    seed_text = seed_text + " " + tokenizeArray[predicted[0]]
 
 print(poetry)
+poetry = seed_text_original
+seed_text = seed_text_original
+
