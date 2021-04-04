@@ -13,9 +13,9 @@ model2 = tf.keras.models.load_model('poetryModel40')
 model3 = tf.keras.models.load_model('poetryModel60')
 model4 = tf.keras.models.load_model('poetryModel80')
 
-seed_text = "bir şarab seli hâlinde dönmenin yezitliği"
+seed_text = "selam ben şiir yazıyorum"
 seed_text_original = seed_text
-next_words = 20
+next_words = 100
 max_length = 14
 tokenizeArray = pd.read_csv("tokenizeList.csv")
 tokenizeArray = tokenizeArray['0'].to_numpy().tolist()
@@ -73,7 +73,6 @@ poetry = seed_text
 for ss in range(next_words):
     tokens = tokenizer.tokenize(seed_text)
     res = addLineToDataset(tokens)
-    print("res: ",res, " len: ",len(res))
     predicted = model1.predict_classes([res], verbose=0)
 
     word_list = seed_text.split()
@@ -87,4 +86,67 @@ for ss in range(next_words):
 print(poetry)
 poetry = seed_text_original
 seed_text = seed_text_original
+
+print("----------------------------------")
+print("Model2")
+poetry = seed_text
+for ss in range(next_words):
+    tokens = tokenizer.tokenize(seed_text)
+    res = addLineToDataset(tokens)
+    predicted = model2.predict_classes([res], verbose=0)
+
+    word_list = seed_text.split()
+    number_of_words = len(word_list)
+    if number_of_words >= max_length:
+        seed_text = deleteFirstWord(seed_text)
+
+    poetry += " " + tokenizeArray[predicted[0]]
+    seed_text = seed_text + " " + tokenizeArray[predicted[0]]
+
+print(poetry)
+poetry = seed_text_original
+seed_text = seed_text_original
+
+
+print("----------------------------------")
+print("Model3")
+poetry = seed_text
+for ss in range(next_words):
+    tokens = tokenizer.tokenize(seed_text)
+    res = addLineToDataset(tokens)
+    predicted = model3.predict_classes([res], verbose=0)
+
+    word_list = seed_text.split()
+    number_of_words = len(word_list)
+    if number_of_words >= max_length:
+        seed_text = deleteFirstWord(seed_text)
+
+    poetry += " " + tokenizeArray[predicted[0]]
+    seed_text = seed_text + " " + tokenizeArray[predicted[0]]
+
+print(poetry)
+poetry = seed_text_original
+seed_text = seed_text_original
+
+
+print("----------------------------------")
+print("Model4")
+poetry = seed_text
+for ss in range(next_words):
+    tokens = tokenizer.tokenize(seed_text)
+    res = addLineToDataset(tokens)
+    predicted = model4.predict_classes([res], verbose=0)
+
+    word_list = seed_text.split()
+    number_of_words = len(word_list)
+    if number_of_words >= max_length:
+        seed_text = deleteFirstWord(seed_text)
+
+    poetry += " " + tokenizeArray[predicted[0]]
+    seed_text = seed_text + " " + tokenizeArray[predicted[0]]
+
+print(poetry)
+poetry = seed_text_original
+seed_text = seed_text_original
+
 
