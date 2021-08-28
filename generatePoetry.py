@@ -14,7 +14,7 @@ model4 = tf.keras.models.load_model('poetryModel80')
 
 modelArray = [model1, model2, model3, model4]
 
-seed_text = "sevmek istiyorum, sevemiyorum"
+seed_text = "kimsecikler görmeden"
 seed_text_original = seed_text
 next_words = 100
 max_length = 14
@@ -74,8 +74,6 @@ def checkNewLine(word):
     return True
 
 
-sp = seed_text.split()
-lastPredicted = [sp[-2], sp[-1]]
 
 
 def addToLastPredicted(new):
@@ -103,14 +101,14 @@ def addToPoetry(poetryStr, new):
     if new == "newline":
         return poetryStr
     else:
-        if not addToLastPredicted(new):
-            new = HeceOlcusu.getMostSimilarWords(new)
         line = ""
         if (poetryStr[-1] == '\n'):
             line = ""
         else:
             poetryList = poetryStr.split('\n')
             line = poetryList[-1]
+        if not addToLastPredicted(new):
+            new = HeceOlcusu.getMostSimilarWord(new)[0][0]
         newLine = line + new
         syllableLen = HeceOlcusu.countSyllable(newLine)
         if syllableLen < hece_olcusu:
@@ -131,29 +129,39 @@ def addToPoetry(poetryStr, new):
 tokenizer = TurkishTokenizer.builder().accept_all().ignore_types([Token.Type.NewLine,
                                                                   Token.Type.SpaceTab]).build()
 
-modelNum = 1
-for model in modelArray:
-    print("----------------------------------")
-    print("Model", modelNum)
-    modelNum += 1
-    poetry = seed_text
-    for ss in range(next_words):
-        tokens = tokenizer.tokenize(seed_text)
-        res = addLineToDataset(tokens)
-        predicted = model.predict_classes([res], verbose=0)
-        if not (isDeleteNewLine(tokenizeArray[predicted[0]])):
-            for _ in range(10):
-                predicted = model1.predict_classes([res], verbose=0)
-                if isDeleteNewLine(tokenizeArray[predicted[0]]):
-                    break
 
-        word_list = seed_text.split()
-        number_of_words = len(word_list)
-        if number_of_words >= max_length:
-            seed_text = deleteFirstWord(seed_text)
-        poetry = addToPoetry(poetry, tokenizeArray[predicted[0]])
-        seed_text = seed_text + " " + tokenizeArray[predicted[0]]
+while True:
+    print("------------")
+    seed_text = input("Seed Text'i girin: ")
+    hece_olcusu = int(input("Hece Ölçüsü girin: "))
+    seed_text_original = seed_text
+    sp = seed_text.split()
+    lastPredicted = [sp[-2], sp[-1]]
 
-    print(poetry)
-    poetry = seed_text_original
-    seed_text = seed_text_original
+
+    modelNum = 1
+    for model in modelArray:
+        print("----------------------------------")
+        print("Model", modelNum)
+        modelNum += 1
+        poetry = seed_text
+        for ss in range(next_words):
+            tokens = tokenizer.tokenize(seed_text)
+            res = addLineToDataset(tokens)
+            predicted = model.predict_classes([res], verbose=0)
+            if not (isDeleteNewLine(tokenizeArray[predicted[0]])):
+                for _ in range(10):
+                    predicted = model1.predict_classes([res], verbose=0)
+                    if isDeleteNewLine(tokenizeArray[predicted[0]]):
+                        break
+
+            word_list = seed_text.split()
+            number_of_words = len(word_list)
+            if number_of_words >= max_length:
+                seed_text = deleteFirstWord(seed_text)
+            poetry = addToPoetry(poetry, tokenizeArray[predicted[0]])
+            seed_text = seed_text + " " + tokenizeArray[predicted[0]]
+
+        print(poetry)
+        poetry = seed_text_original
+        seed_text = seed_text_original
